@@ -13,6 +13,11 @@ data class LuminaHighlight(
     val name: String? = null
 )
 
+/** One macro invocation. [contentEnd] is the closing parenthesis, or the end of the text when unterminated. */
+data class LuminaMacroCall(val macro: String, val argsStart: Int, val contentEnd: Int)
+
+data class LuminaCompletionContext(val target: LuminaSpecifierTarget, val prefixStart: Int)
+
 object LuminaMacroScanner {
 
     const val MAX_LENGTH = 4_000_000
@@ -20,10 +25,38 @@ object LuminaMacroScanner {
     // GENERATED_BODY and ENTITY_SYSTEM carry no specifier table, so their arguments are coloured but not checked.
     val MACROS = setOf("REFLECT", "PROPERTY", "FUNCTION", "SCRIPT_EXPORT", "GENERATED_BODY", "ENTITY_SYSTEM")
 
-    fun scan(text: CharSequence): List<LuminaHighlight> {
-        if (text.length > MAX_LENGTH) return emptyList()
+    private class ScanResult {
+        val highlights = ArrayList<LuminaHighlight>()
+        val calls = ArrayList<LuminaMacroCall>()
+    }
 
-        val result = ArrayList<LuminaHighlight>()
+    fun scan(text: CharSequence): List<LuminaHighlight> = scanInternal(text)?.highlights ?: emptyList()
+
+    /**
+     * The specifier table to complete against when [offset] sits at a specifier name inside a macro's
+     * argument list, or null anywhere else. Null on the value side of an `=`, where a table is meaningless.
+     */
+    fun completionContextAt(text: CharSequence, offset: Int): LuminaCompletionContext? {
+        if (offset !in 0..text.length) return null
+
+        val call = scanInternal(text)?.calls?.firstOrNull { offset > it.argsStart && offset <= it.contentEnd }
+            ?: return null
+
+        val target = LuminaSpecifierTarget.forMacro(call.macro) ?: return null
+
+        val segmentStart = segmentStartFor(text, call.argsStart, offset)
+        if (findAssignment(text, segmentStart, offset) >= 0) return null
+
+        var prefixStart = offset
+        while (prefixStart > segmentStart && isIdentifierPart(text[prefixStart - 1])) prefixStart--
+
+        return LuminaCompletionContext(target, prefixStart)
+    }
+
+    private fun scanInternal(text: CharSequence): ScanResult? {
+        if (text.length > MAX_LENGTH) return null
+
+        val result = ScanResult()
         val length = text.length
         var index = 0
         var atLineStart = true
@@ -65,8 +98,13 @@ object LuminaMacroScanner {
                     if (macro in MACROS) {
                         val parenthesis = skipWhitespace(text, index)
                         if (parenthesis < length && text[parenthesis] == '(') {
-                            result.add(LuminaHighlight(start, index, LuminaHighlightKind.MACRO, macro, macro))
-                            index = readArguments(text, parenthesis, macro, result)
+                            result.highlights.add(
+                                LuminaHighlight(start, index, LuminaHighlightKind.MACRO, macro, macro)
+                            )
+                            index = readArguments(text, parenthesis, macro, result.highlights)
+                            // An unterminated list runs to the end of the text; a closed one stops at its ')'.
+                            val closed = index > parenthesis && text[index - 1] == ')'
+                            result.calls.add(LuminaMacroCall(macro, parenthesis, if (closed) index - 1 else index))
                         }
                     }
                     atLineStart = false
@@ -130,6 +168,42 @@ object LuminaMacroScanner {
 
         emitSegment(text, segmentStart, length, macro, out)
         return length
+    }
+
+    private fun segmentStartFor(text: CharSequence, argsStart: Int, offset: Int): Int {
+        var index = argsStart + 1
+        var depth = 1
+        var segmentStart = index
+
+        while (index < offset) {
+            val current = text[index]
+            when {
+                current == '/' && index + 1 < offset && text[index + 1] == '/' -> index = skipLineComment(text, index)
+                current == '/' && index + 1 < offset && text[index + 1] == '*' -> index = skipBlockComment(text, index)
+                current == '"' -> index = skipString(text, index, index > 0 && text[index - 1] == 'R')
+                current == '\'' -> index = skipCharLiteral(text, index)
+
+                current == '(' -> {
+                    depth++
+                    index++
+                }
+
+                current == ')' -> {
+                    depth--
+                    if (depth == 0) return segmentStart
+                    index++
+                }
+
+                current == ',' && depth == 1 -> {
+                    index++
+                    segmentStart = index
+                }
+
+                else -> index++
+            }
+        }
+
+        return segmentStart
     }
 
     private fun emitSegment(

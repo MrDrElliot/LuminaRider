@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+- Completion inside a reflection macro's argument list offers that macro's own specifiers, with the form and
+  consumer shown per item. Value specifiers complete into `Name = `. Nothing is offered on the value side of
+  an `=`, or inside GENERATED_BODY and ENTITY_SYSTEM, which have no specifier table.
+- Hover no longer fires on the macro name. Rider already documents those with a real expansion preview, and
+  both popups showed at once. Specifiers, metadata keys and unrecognized specifiers still explain themselves.
+
 ## 1.0.0
 
 First release.

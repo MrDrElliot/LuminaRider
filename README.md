@@ -32,6 +32,11 @@ same wording and spelling suggestion the build prints as LRT1009, using the same
 the editor and the build agree. Hovering a macro or specifier shows what it does, whether it is a flag or a
 key/value pair, and which layer reads it.
 
+Completion inside `REFLECT`, `PROPERTY`, `FUNCTION` and `SCRIPT_EXPORT` offers exactly the specifiers that
+macro accepts, each labelled with its form and the layer that reads it. A specifier taking a value completes
+into `Name = `. Nothing is offered on the value side of an `=`, or inside `GENERATED_BODY` and
+`ENTITY_SYSTEM`, which have no table.
+
 Live templates (`lclass`, `lstruct`, `lcomp`, `lsystem`, `lenum`, `lprop`, `lpropr`, `lfunc`, `lgen`) expand in
 C and C++ files. **New | Lumina Type** generates a reflected header and, where the kind needs one, its source
 file.

@@ -7,18 +7,9 @@ import dev.lumina.rider.specifiers.LuminaSpecifierTarget
 
 object LuminaTooltips {
 
-    private val MACRO_DOCUMENTATION = mapOf(
-        "REFLECT" to "Registers the type with the reflection system. The body needs GENERATED_BODY() and the header " +
-            "needs its matching .generated.h include.",
-        "PROPERTY" to "Reflects the field that follows, making it visible to serialization, the editor and script.",
-        "FUNCTION" to "Reflects the member function that follows.",
-        "SCRIPT_EXPORT" to "Binds a free function into a C# static class. Requires Class.",
-        "GENERATED_BODY" to "Expands to the generated members of the enclosing reflected type.",
-        "ENTITY_SYSTEM" to "Declares the update stages an ECS system runs in."
-    )
-
+    // Rider documents the macro name itself, with a real expansion preview. Claiming it too stacks two popups.
     fun forHighlight(highlight: LuminaHighlight): String? = when (highlight.kind) {
-        LuminaHighlightKind.MACRO -> macroTooltip(highlight.macro)
+        LuminaHighlightKind.MACRO -> null
         LuminaHighlightKind.SPECIFIER, LuminaHighlightKind.META_KEY -> specifierTooltip(highlight)
         LuminaHighlightKind.UNKNOWN_SPECIFIER -> unknownTooltip(highlight)
         LuminaHighlightKind.META_VALUE -> null
@@ -28,11 +19,6 @@ object LuminaTooltips {
         val target = LuminaSpecifierTarget.forMacro(highlight.macro) ?: return null
         val name = highlight.name ?: return null
         return LuminaSpecifiers.unknownSpecifierMessage(target, name)
-    }
-
-    private fun macroTooltip(macro: String): String? {
-        val documentation = MACRO_DOCUMENTATION[macro] ?: return null
-        return html("<b>$macro</b>", null, documentation)
     }
 
     private fun specifierTooltip(highlight: LuminaHighlight): String? {

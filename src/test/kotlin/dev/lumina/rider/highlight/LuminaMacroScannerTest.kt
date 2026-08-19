@@ -1,5 +1,6 @@
 package dev.lumina.rider.highlight
 
+import dev.lumina.rider.specifiers.LuminaSpecifierTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -162,5 +163,82 @@ class LuminaMacroScannerTest {
 
         assertEquals("Editable", LuminaMacroScanner.highlightAt(highlights, source.indexOf("Editable"))?.name)
         assertNull(LuminaMacroScanner.highlightAt(highlights, source.length - 1))
+    }
+
+    private fun contextAt(source: String): LuminaSpecifierTarget? {
+        val offset = source.indexOf('|')
+        require(offset >= 0) { "mark the caret with |" }
+        val text = source.removeRange(offset, offset + 1)
+        return LuminaMacroScanner.completionContextAt(text, offset)?.target
+    }
+
+    @Test
+    fun `completion offers the enclosing macro's table`() {
+        assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt("PROPERTY(|)"))
+        assertEquals(LuminaSpecifierTarget.REFLECT, contextAt("REFLECT(|)"))
+        assertEquals(LuminaSpecifierTarget.FUNCTION, contextAt("FUNCTION(|)"))
+        assertEquals(LuminaSpecifierTarget.SCRIPT_EXPORT, contextAt("SCRIPT_EXPORT(|)"))
+    }
+
+    @Test
+    fun `completion works part way through a name and after a comma`() {
+        assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt("PROPERTY(Edit|)"))
+        assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt("PROPERTY(Editable, |)"))
+        assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt("""PROPERTY(Category = "X", Edit|)"""))
+    }
+
+    @Test
+    fun `the prefix stops at the identifier start`() {
+        val source = "PROPERTY(Editable, Cat)"
+        val offset = source.indexOf("Cat") + 3
+        val context = LuminaMacroScanner.completionContextAt(source, offset)
+        assertEquals("Cat", source.substring(context!!.prefixStart, offset))
+    }
+
+    @Test
+    fun `no completion on the value side of an assignment`() {
+        assertNull(contextAt("""PROPERTY(Category = |)"""))
+        assertNull(contextAt("""PROPERTY(Category = "Phys|")"""))
+        assertNull(contextAt("PROPERTY(ClampMin = 0.|)"))
+    }
+
+    @Test
+    fun `no completion outside a macro argument list`() {
+        assertNull(contextAt("PROPERTY(Editable)|"))
+        assertNull(contextAt("|PROPERTY(Editable)"))
+        assertNull(contextAt("int Value| = 4;"))
+        assertNull(contextAt("SomeCall(Edit|)"))
+    }
+
+    @Test
+    fun `macros without a specifier table offer nothing`() {
+        assertNull(contextAt("GENERATED_BODY(|)"))
+        assertNull(contextAt("ENTITY_SYSTEM(Requires|)"))
+    }
+
+    @Test
+    fun `completion still resolves inside a real header`() {
+        val source = """
+            #pragma once
+
+            namespace Lumina
+            {
+                REFLECT(Component)
+                struct SThing
+                {
+                    GENERATED_BODY()
+
+                    PROPERTY(Editable, Cat|)
+                    float Value = 0.0f;
+                };
+            }
+        """.trimIndent()
+
+        assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt(source))
+    }
+
+    @Test
+    fun `an unterminated argument list still completes`() {
+        assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt("PROPERTY(Edit|"))
     }
 }

@@ -39,6 +39,15 @@
     ]]></description>
 
     <change-notes><![CDATA[
+    <h3>1.0.1</h3>
+    <ul>
+      <li>Completion inside REFLECT, PROPERTY, FUNCTION and SCRIPT_EXPORT now offers exactly the specifiers
+      that macro accepts, with each one's form and consumer. A specifier that takes a value completes
+      straight into <code>Name = </code>.</li>
+      <li>Hovering a reflection macro no longer opens a second popup next to Rider's own macro expansion
+      preview. Specifier documentation on hover is unchanged.</li>
+    </ul>
+
     <h3>1.0.0</h3>
     <ul>
       <li>First release: run configurations, build actions, reflection macro highlighting, live templates,
@@ -58,6 +67,9 @@
         <configurationType implementation="dev.lumina.rider.run.LuminaRunConfigurationType"/>
 
         <editorFactoryListener implementation="dev.lumina.rider.highlight.LuminaEditorFactoryListener"/>
+
+        <completion.contributor language="any"
+                                implementationClass="dev.lumina.rider.completion.LuminaSpecifierCompletionContributor"/>
 
         <colorSettingsPage implementation="dev.lumina.rider.highlight.LuminaColorSettingsPage"/>
         <additionalTextAttributes scheme="Default" file="colorSchemes/LuminaDefault.xml"/>
