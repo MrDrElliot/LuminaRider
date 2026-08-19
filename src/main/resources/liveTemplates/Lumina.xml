@@ -1,0 +1,68 @@
+<templateSet group="Lumina">
+    <template name="lgen" value="GENERATED_BODY()&#10;$END$" description="Lumina GENERATED_BODY" toReformat="false" toShortenFQNames="false">
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lprop" value="PROPERTY(Editable, Category = &quot;$CATEGORY$&quot;)&#10;$TYPE$ $NAME$;&#10;$END$" description="Lumina reflected property" toReformat="false" toShortenFQNames="false">
+        <variable name="CATEGORY" expression="" defaultValue="&quot;Default&quot;" alwaysStopAt="true"/>
+        <variable name="TYPE" expression="" defaultValue="&quot;float&quot;" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="&quot;Value&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lpropr" value="PROPERTY(Editable, Category = &quot;$CATEGORY$&quot;, ClampMin = $MIN$, ClampMax = $MAX$)&#10;$TYPE$ $NAME$ = $DEFAULT$;&#10;$END$" description="Lumina reflected property with a clamped range" toReformat="false" toShortenFQNames="false">
+        <variable name="CATEGORY" expression="" defaultValue="&quot;Default&quot;" alwaysStopAt="true"/>
+        <variable name="MIN" expression="" defaultValue="&quot;0.0f&quot;" alwaysStopAt="true"/>
+        <variable name="MAX" expression="" defaultValue="&quot;1.0f&quot;" alwaysStopAt="true"/>
+        <variable name="TYPE" expression="" defaultValue="&quot;float&quot;" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="&quot;Value&quot;" alwaysStopAt="true"/>
+        <variable name="DEFAULT" expression="" defaultValue="&quot;0.0f&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lfunc" value="FUNCTION()&#10;void $NAME$();&#10;$END$" description="Lumina reflected function" toReformat="false" toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;DoSomething&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lclass" value="REFLECT()&#10;class $API$ C$NAME$ : public $BASE$&#10;{&#10;    GENERATED_BODY()&#10;&#10;public:&#10;&#10;    $END$&#10;};" description="Lumina reflected class" toReformat="false" toShortenFQNames="false">
+        <variable name="API" expression="" defaultValue="&quot;RUNTIME_API&quot;" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="&quot;MyClass&quot;" alwaysStopAt="true"/>
+        <variable name="BASE" expression="" defaultValue="&quot;CObject&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lstruct" value="REFLECT()&#10;struct $API$ F$NAME$&#10;{&#10;    GENERATED_BODY()&#10;&#10;    $END$&#10;};" description="Lumina reflected struct" toReformat="false" toShortenFQNames="false">
+        <variable name="API" expression="" defaultValue="&quot;RUNTIME_API&quot;" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="&quot;MyStruct&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lcomp" value="REFLECT(Component, Category = &quot;$CATEGORY$&quot;)&#10;struct $API$ S$NAME$Component&#10;{&#10;    GENERATED_BODY()&#10;&#10;    $END$&#10;};" description="Lumina entity component" toReformat="false" toShortenFQNames="false">
+        <variable name="CATEGORY" expression="" defaultValue="&quot;Gameplay&quot;" alwaysStopAt="true"/>
+        <variable name="API" expression="" defaultValue="&quot;RUNTIME_API&quot;" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="&quot;My&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lsystem" value="REFLECT(System)&#10;struct S$NAME$System&#10;{&#10;    GENERATED_BODY()&#10;    ENTITY_SYSTEM(RequiresUpdate(EUpdateStage::$STAGE$))&#10;&#10;public:&#10;&#10;    static FSystemAccess Access;&#10;&#10;    static void Update(const FSystemContext&amp; SystemContext) noexcept;&#10;};&#10;$END$" description="Lumina entity system" toReformat="false" toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;My&quot;" alwaysStopAt="true"/>
+        <variable name="STAGE" expression="" defaultValue="&quot;PrePhysics&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+    <template name="lenum" value="REFLECT()&#10;enum class E$NAME$ : uint8&#10;{&#10;    $END$&#10;};" description="Lumina reflected enum" toReformat="false" toShortenFQNames="false">
+        <variable name="NAME" expression="" defaultValue="&quot;MyEnum&quot;" alwaysStopAt="true"/>
+        <context>
+            <option name="LUMINA_CPP" value="true"/>
+        </context>
+    </template>
+</templateSet>

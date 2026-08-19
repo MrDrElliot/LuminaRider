@@ -1,0 +1,25 @@
+<scheme name="Darcula" version="142" parent_scheme="Darcula">
+    <attributes>
+        <option name="LUMINA_MACRO">
+            <value>
+                <option name="FOREGROUND" value="BB86C6"/>
+                <option name="FONT_TYPE" value="1"/>
+            </value>
+        </option>
+        <option name="LUMINA_SPECIFIER">
+            <value>
+                <option name="FOREGROUND" value="CC7832"/>
+            </value>
+        </option>
+        <option name="LUMINA_META_KEY">
+            <value>
+                <option name="FOREGROUND" value="9876AA"/>
+            </value>
+        </option>
+        <option name="LUMINA_META_VALUE">
+            <value>
+                <option name="FOREGROUND" value="6A8759"/>
+            </value>
+        </option>
+    </attributes>
+</scheme>

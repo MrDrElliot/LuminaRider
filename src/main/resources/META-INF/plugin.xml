@@ -1,0 +1,169 @@
+<idea-plugin>
+    <id>dev.lumina.engine</id>
+    <name>Lumina Engine</name>
+    <vendor email="mrdrelliot@gmail.com" url="https://github.com/MrDrElliot/LuminaEngine">MrDrElliot</vendor>
+
+    <description><![CDATA[
+    <p>Rider support for the <b>Lumina Engine</b>: build, run and regenerate reflection code without leaving the IDE,
+    and read reflected C++ headers with the reflection macros highlighted.</p>
+
+    <h3>Build and run</h3>
+    <ul>
+      <li>A <b>Lumina</b> run configuration that drives <code>LuminaBuildTool</code>: build, rebuild, clean, run,
+      generate project files, fetch dependencies, and the query, include and dependency reports.</li>
+      <li>Toolbar and <b>Tools | Lumina</b> actions for the same operations, using the defaults configured per solution.</li>
+      <li><b>Regenerate Reflection</b> deletes the generated reflection code and rebuilds it.</li>
+      <li>Compiler diagnostics in the run console are clickable, for both MSVC and Clang output.</li>
+    </ul>
+
+    <h3>Editor</h3>
+    <ul>
+      <li>Syntax highlighting for <code>REFLECT</code>, <code>PROPERTY</code>, <code>FUNCTION</code>,
+      <code>GENERATED_BODY</code>, <code>SCRIPT_EXPORT</code> and <code>ENTITY_SYSTEM</code>, including their
+      specifiers and metadata keys and values. Colors are configurable under
+      <b>Settings | Editor | Color Scheme | Lumina Engine</b>.</li>
+      <li>Specifiers are checked against the Reflector's own table: an unrecognized one is underlined with the
+      same message and spelling suggestion the build would print as LRT1009.</li>
+      <li>Hovering a macro or specifier shows what it does, which form it takes and which layer reads it.</li>
+      <li>Live templates for reflected classes, structs, components, systems, enums, properties and functions.</li>
+      <li><b>New | Lumina Type</b> generates a reflected header and its matching source file.</li>
+    </ul>
+
+    <h3>Tool window</h3>
+    <p>A <b>Lumina</b> tool window lists the build targets discovered in the engine and the solution; double-click a
+    target to build it. Its second tab is a searchable reference for every REFLECT, PROPERTY, FUNCTION and
+    SCRIPT_EXPORT specifier the engine supports.</p>
+
+    <p>The engine root is detected from the solution directory, from <code>LUMINA_DIR</code>, or set explicitly under
+    <b>Settings | Tools | Lumina Engine</b>.</p>
+    ]]></description>
+
+    <change-notes><![CDATA[
+    <h3>1.0.0</h3>
+    <ul>
+      <li>First release: run configurations, build actions, reflection macro highlighting, live templates,
+      the new type generator and the targets tool window.</li>
+    </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.rider</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable
+                id="dev.lumina.rider.settings"
+                parentId="tools"
+                displayName="Lumina Engine"
+                instance="dev.lumina.rider.settings.LuminaConfigurable"/>
+
+        <configurationType implementation="dev.lumina.rider.run.LuminaRunConfigurationType"/>
+
+        <editorFactoryListener implementation="dev.lumina.rider.highlight.LuminaEditorFactoryListener"/>
+
+        <colorSettingsPage implementation="dev.lumina.rider.highlight.LuminaColorSettingsPage"/>
+        <additionalTextAttributes scheme="Default" file="colorSchemes/LuminaDefault.xml"/>
+        <additionalTextAttributes scheme="Darcula" file="colorSchemes/LuminaDarcula.xml"/>
+
+        <defaultLiveTemplates file="/liveTemplates/Lumina.xml"/>
+        <liveTemplateContext contextId="LUMINA_CPP"
+                            implementation="dev.lumina.rider.templates.LuminaTemplateContextType"/>
+
+        <toolWindow id="Lumina"
+                    anchor="right"
+                    icon="dev.lumina.rider.LuminaIcons.Lumina"
+                    factoryClass="dev.lumina.rider.toolwindow.LuminaToolWindowFactory"/>
+    </extensions>
+
+    <actions>
+        <action id="Lumina.Build"
+                class="dev.lumina.rider.actions.LuminaBuildAction"
+                text="Build"
+                description="Build the default Lumina target"
+                icon="dev.lumina.rider.LuminaIcons.Build"/>
+
+        <action id="Lumina.BuildTarget"
+                class="dev.lumina.rider.actions.LuminaBuildTargetAction"
+                text="Build Target..."
+                description="Pick a Lumina target and build it"/>
+
+        <action id="Lumina.Rebuild"
+                class="dev.lumina.rider.actions.LuminaRebuildAction"
+                text="Rebuild"
+                description="Clean and build the default Lumina target"/>
+
+        <action id="Lumina.Clean"
+                class="dev.lumina.rider.actions.LuminaCleanAction"
+                text="Clean Intermediates"
+                description="Delete the Lumina build intermediates"/>
+
+        <action id="Lumina.RunEditor"
+                class="dev.lumina.rider.actions.LuminaRunEditorAction"
+                text="Run Editor"
+                description="Launch the default Lumina target"/>
+
+        <action id="Lumina.RegenerateReflection"
+                class="dev.lumina.rider.actions.LuminaRegenerateReflectionAction"
+                text="Regenerate Reflection"
+                description="Delete the generated reflection code and build it again"
+                icon="dev.lumina.rider.LuminaIcons.Reflect"/>
+
+        <action id="Lumina.GenerateProjectFiles"
+                class="dev.lumina.rider.actions.LuminaGenerateProjectFilesAction"
+                text="Generate Project Files"
+                description="Regenerate the IDE project and solution files"
+                icon="dev.lumina.rider.LuminaIcons.Generate"/>
+
+        <action id="Lumina.Setup"
+                class="dev.lumina.rider.actions.LuminaSetupAction"
+                text="Fetch Dependencies"
+                description="Run the Lumina dependency setup"/>
+
+        <action id="Lumina.Query"
+                class="dev.lumina.rider.actions.LuminaQueryAction"
+                text="Query Targets and Modules"
+                description="List the targets, modules and plugins the build tool discovered"/>
+
+        <action id="Lumina.Settings"
+                class="dev.lumina.rider.actions.LuminaOpenSettingsAction"
+                text="Lumina Settings..."
+                description="Open the Lumina Engine settings page"/>
+
+        <action id="Lumina.NewType"
+                class="dev.lumina.rider.newclass.NewLuminaTypeAction"
+                text="Lumina Type..."
+                description="Create a reflected Lumina class, struct, component, system or enum">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
+
+        <group id="Lumina.MainGroup"
+               text="Lumina"
+               description="Lumina Engine actions"
+               popup="true"
+               icon="dev.lumina.rider.LuminaIcons.Lumina">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <add-to-group group-id="MainToolbarRight" anchor="first"/>
+
+            <reference ref="Lumina.Build"/>
+            <reference ref="Lumina.BuildTarget"/>
+            <reference ref="Lumina.Rebuild"/>
+            <reference ref="Lumina.RunEditor"/>
+            <separator/>
+            <reference ref="Lumina.RegenerateReflection"/>
+            <reference ref="Lumina.GenerateProjectFiles"/>
+            <reference ref="Lumina.Clean"/>
+            <separator/>
+            <reference ref="Lumina.Query"/>
+            <reference ref="Lumina.Setup"/>
+            <separator/>
+            <reference ref="Lumina.NewType"/>
+            <reference ref="Lumina.Settings"/>
+        </group>
+
+        <group id="Lumina.ToolWindowActions">
+            <reference ref="Lumina.Build"/>
+            <reference ref="Lumina.Rebuild"/>
+            <reference ref="Lumina.RunEditor"/>
+            <reference ref="Lumina.RegenerateReflection"/>
+            <reference ref="Lumina.GenerateProjectFiles"/>
+        </group>
+    </actions>
+</idea-plugin>
