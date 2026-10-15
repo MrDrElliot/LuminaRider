@@ -59,6 +59,8 @@ object LuminaSpecifierTable {
         LuminaSpecifier("NoReorder", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.EDITOR, "Removes the drag handles from an array property."),
         LuminaSpecifier("NoResize", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.EDITOR, "Removes the add and remove buttons from an array property."),
         LuminaSpecifier("DefaultCollapsed", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.EDITOR, "Draws a struct or instanced struct property collapsed on first open."),
+        LuminaSpecifier("EditCondition", LuminaSpecifierForm.VALUE, LuminaSpecifierConsumer.EDITOR, "Disables the property while the expression is false. Terms are Prop, !Prop, Prop == Value or Prop != Value, joined by && or ||."),
+        LuminaSpecifier("EditConditionHides", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.EDITOR, "Hides the property instead of disabling it while its EditCondition is false."),
         LuminaSpecifier("RequiresRecook", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.EDITOR, "Editing the property triggers a recook of the owning asset."),
         LuminaSpecifier("ScriptReadOnly", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.SCRIPT, "The generated C# wrapper emits a getter only, whatever the editor flags say."),
         LuminaSpecifier("ScriptWritable", LuminaSpecifierForm.FLAG, LuminaSpecifierConsumer.SCRIPT, "The generated C# wrapper emits a setter, whatever the editor flags say."),

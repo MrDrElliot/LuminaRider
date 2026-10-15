@@ -3,6 +3,7 @@ package dev.lumina.rider.highlight
 import dev.lumina.rider.specifiers.LuminaSpecifierTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -240,5 +241,20 @@ class LuminaMacroScannerTest {
     @Test
     fun `an unterminated argument list still completes`() {
         assertEquals(LuminaSpecifierTarget.PROPERTY, contextAt("PROPERTY(Edit|"))
+    }
+
+    @Test
+    fun `hover explains the macros that expand to nothing and defers on the ones that do not`() {
+        fun macroTooltip(source: String) =
+            LuminaTooltips.forHighlight(scan(source).first { it.kind == LuminaHighlightKind.MACRO })
+
+        assertNotNull(macroTooltip("PROPERTY(Editable)"))
+        assertNotNull(macroTooltip("REFLECT()"))
+        assertNotNull(macroTooltip("FUNCTION()"))
+        assertNotNull(macroTooltip("""SCRIPT_EXPORT(Class = "Math")"""))
+
+        // Rider shows a real expansion preview for these two, so a second popup beside it is noise.
+        assertNull(macroTooltip("GENERATED_BODY()"))
+        assertNull(macroTooltip("ENTITY_SYSTEM(RequiresUpdate(EUpdateStage::PrePhysics))"))
     }
 }

@@ -14,7 +14,7 @@ object LuminaReflection {
     private val GENERATED_DIRECTORIES = listOf("Intermediates/Reflection", "Intermediates/CSharpBindings")
 
     fun outputRoot(project: Project): Path? =
-        LuminaEngine.projectFile(project)?.parent ?: LuminaEngine.engineRoot(project)
+        LuminaEngine.projectRoot(project) ?: LuminaEngine.engineRoot(project)
 
     fun deleteGeneratedCode(project: Project) {
         val root = outputRoot(project) ?: return

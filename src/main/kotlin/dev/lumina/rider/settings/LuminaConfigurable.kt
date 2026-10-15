@@ -40,7 +40,7 @@ class LuminaConfigurable(private val project: Project) : BoundConfigurable("Lumi
                     )
                         .columns(48)
                         .bindText({ state.projectFile.orEmpty() }, { state.projectFile = it.trim().ifEmpty { null } })
-                        .comment("Passed as -Project when building a game against an installed engine.")
+                        .comment("Its directory is passed as -Project when building a game against an installed engine.")
                 }
             }
 
@@ -48,9 +48,10 @@ class LuminaConfigurable(private val project: Project) : BoundConfigurable("Lumi
                 row("Target:") {
                     textField()
                         .columns(24)
-                        .bindText(
-                            { state.defaultTarget ?: LuminaEngine.DEFAULT_TARGET },
-                            { state.defaultTarget = it.trim().ifEmpty { LuminaEngine.DEFAULT_TARGET } }
+                        .bindText({ state.defaultTarget.orEmpty() }, { state.defaultTarget = it.trim().ifEmpty { null } })
+                        .comment(
+                            "Leave empty to follow the open project, which here means " +
+                                "<b>${LuminaEngine.derivedTarget(project)}</b>."
                         )
                 }
                 row("Configuration:") {

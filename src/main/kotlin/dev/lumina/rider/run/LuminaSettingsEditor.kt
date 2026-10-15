@@ -17,7 +17,7 @@ class LuminaSettingsEditor(private val project: Project) : SettingsEditor<Lumina
 
     private class EditorState {
         var mode: LuminaMode = LuminaMode.BUILD
-        var target: String = LuminaEngine.DEFAULT_TARGET
+        var target: String = ""
         var buildConfiguration: String = "Development"
         var platform: String = ""
         var targetType: String = "Editor"
@@ -29,7 +29,7 @@ class LuminaSettingsEditor(private val project: Project) : SettingsEditor<Lumina
     private val state = EditorState()
 
     private val targets: List<String> by lazy {
-        val discovered = LuminaTargets.discover(LuminaEngine.engineRoot(project), LuminaEngine.projectFile(project)?.parent)
+        val discovered = LuminaTargets.discover(LuminaEngine.engineRoot(project), LuminaEngine.projectRoot(project))
         if (discovered.isEmpty()) listOf(LuminaEngine.DEFAULT_TARGET) else discovered
     }
 
@@ -82,7 +82,7 @@ class LuminaSettingsEditor(private val project: Project) : SettingsEditor<Lumina
     override fun resetEditorFrom(configuration: LuminaRunConfiguration) {
         val options = configuration.options
         state.mode = LuminaMode.of(options.mode)
-        state.target = options.target.ifBlank { LuminaEngine.DEFAULT_TARGET }
+        state.target = options.target.ifBlank { LuminaEngine.defaultTarget(project) }
         state.buildConfiguration = options.buildConfiguration
         state.platform = options.platform
         state.targetType = options.targetType

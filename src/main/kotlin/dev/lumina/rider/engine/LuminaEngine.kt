@@ -41,14 +41,39 @@ object LuminaEngine {
         val base = project.basePath?.let { runCatching { Path.of(it) }.getOrNull() }
         ancestors(base).firstOrNull(::isEngineRoot)?.let { return it }
 
-        val fromEnvironment = System.getenv("LUMINA_DIR")?.let { runCatching { Path.of(it) }.getOrNull() }
-        if (isEngineRoot(fromEnvironment)) return fromEnvironment
+        val projectFile = detectProjectFile(project)
+        associatedEngine(projectFile)?.let { return it }
+        ancestors(projectFile?.parent).firstOrNull(::isEngineRoot)?.let { return it }
 
-        val fromProjectFile = detectProjectFile(project)?.parent
-        ancestors(fromProjectFile).firstOrNull(::isEngineRoot)?.let { return it }
-
-        return null
+        return registeredEngines().values.firstOrNull()
     }
+
+    // LuminaBuildTool records every engine checkout here, keyed by the id a .lproject's EngineAssociation names.
+    private fun registeredEngines(): Map<String, Path> {
+        val base = if (SystemInfo.isWindows) System.getenv("LOCALAPPDATA")
+            else System.getenv("XDG_DATA_HOME") ?: "${System.getProperty("user.home")}/.local/share"
+        val store = base?.let { runCatching { Path.of(it, "Lumina", "Engines.json") }.getOrNull() }
+        val text = store?.takeIf { it.isRegularFile() }?.let { runCatching { Files.readString(it) }.getOrNull() } ?: return emptyMap()
+        return JSON_STRING_PAIR.findAll(text).mapNotNull { match ->
+            val root = runCatching { Path.of(unescapeJson(match.groupValues[2])) }.getOrNull()
+            if (isEngineRoot(root)) match.groupValues[1] to root!! else null
+        }.toMap()
+    }
+
+    // An engine id from this machine, or an engine root relative to the project.
+    private fun associatedEngine(projectFile: Path?): Path? {
+        if (projectFile == null) return null
+        val text = runCatching { Files.readString(projectFile) }.getOrNull() ?: return null
+        val association = JSON_STRING_PAIR.findAll(text)
+            .firstOrNull { it.groupValues[1] == "EngineAssociation" }
+            ?.let { unescapeJson(it.groupValues[2]) } ?: return null
+        registeredEngines()[association]?.let { return it }
+        return runCatching { projectFile.parent.resolve(association).normalize() }.getOrNull()?.takeIf(::isEngineRoot)
+    }
+
+    private val JSON_STRING_PAIR = Regex("\"([^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"")
+
+    private fun unescapeJson(value: String): String = value.replace("\\\\", "\\").replace("\\/", "/")
 
     fun projectFile(project: Project): Path? {
         val configured = LuminaSettings.getInstance(project).state.projectFile
@@ -57,6 +82,34 @@ object LuminaEngine {
             if (path != null && path.isRegularFile()) return path
         }
         return detectProjectFile(project)
+    }
+
+    /**
+     * The directory holding the .lproject file. LuminaBuildTool's -Project takes this directory, never the
+     * file itself, and rejects a file path with "Project root '...' does not exist".
+     */
+    fun projectRoot(project: Project): Path? = projectFile(project)?.parent?.takeIf { it.isDirectory() }
+
+    /** The configured target, or the one the open .lproject implies. */
+    fun defaultTarget(project: Project): String =
+        LuminaSettings.getInstance(project).state.defaultTarget?.takeIf { it.isNotBlank() } ?: derivedTarget(project)
+
+    /**
+     * A game solution should build its own target, not the engine editor. Prefers the target named after the
+     * .lproject file, since that is what the project template generates, and falls back to the only other
+     * target under the project root.
+     */
+    fun derivedTarget(project: Project): String =
+        derivedTarget(projectRoot(project), projectFile(project)?.name?.substringBeforeLast('.'))
+
+    fun derivedTarget(projectRoot: Path?, projectName: String?): String {
+        if (projectRoot == null) return DEFAULT_TARGET
+
+        val targets = LuminaTargets.discover(null, projectRoot)
+
+        return targets.firstOrNull { it.equals(projectName, ignoreCase = true) }
+            ?: targets.singleOrNull()
+            ?: DEFAULT_TARGET
     }
 
     private fun detectProjectFile(project: Project): Path? {

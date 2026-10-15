@@ -74,7 +74,7 @@ class LuminaToolWindowPanel(private val project: Project) : SimpleToolWindowPane
     private fun refresh() {
         ApplicationManager.getApplication().executeOnPooledThread {
             val engineRoot = LuminaEngine.engineRoot(project)
-            val projectRoot = LuminaEngine.projectFile(project)?.parent
+            val projectRoot = LuminaEngine.projectRoot(project)
             val targets = LuminaTargets.discover(engineRoot, projectRoot)
 
             ApplicationManager.getApplication().invokeLater {

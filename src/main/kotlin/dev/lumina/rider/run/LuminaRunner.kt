@@ -17,7 +17,7 @@ object LuminaRunner {
 
         configuration.options.also { options ->
             options.mode = mode.name
-            options.target = target ?: defaults.defaultTarget ?: LuminaEngine.DEFAULT_TARGET
+            options.target = target ?: LuminaEngine.defaultTarget(project)
             options.buildConfiguration = defaults.defaultConfiguration ?: "Development"
             options.targetType = defaults.defaultTargetType ?: "Editor"
             options.platform = defaults.defaultPlatform.orEmpty()

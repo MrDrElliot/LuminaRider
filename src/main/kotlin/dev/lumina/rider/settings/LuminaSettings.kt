@@ -7,7 +7,6 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
-import dev.lumina.rider.engine.LuminaEngine
 
 @Service(Service.Level.PROJECT)
 @State(name = "LuminaEngineSettings", storages = [Storage("lumina.xml")])
@@ -16,7 +15,8 @@ class LuminaSettings : SimplePersistentStateComponent<LuminaSettings.State>(Stat
     class State : BaseState() {
         var engineRoot by string()
         var projectFile by string()
-        var defaultTarget by string(LuminaEngine.DEFAULT_TARGET)
+        // Empty follows the open .lproject; see LuminaEngine.defaultTarget.
+        var defaultTarget by string()
         var defaultConfiguration by string("Development")
         var defaultPlatform by string("")
         var defaultTargetType by string("Editor")

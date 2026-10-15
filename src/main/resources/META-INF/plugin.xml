@@ -34,11 +34,31 @@
     target to build it. Its second tab is a searchable reference for every REFLECT, PROPERTY, FUNCTION and
     SCRIPT_EXPORT specifier the engine supports.</p>
 
-    <p>The engine root is detected from the solution directory, from <code>LUMINA_DIR</code>, or set explicitly under
+    <p>The engine root is detected from the solution directory, from the engine the <code>.lproject</code> names, or set explicitly under
     <b>Settings | Tools | Lumina Engine</b>.</p>
     ]]></description>
 
     <change-notes><![CDATA[
+    <h3>1.0.4</h3>
+    <ul>
+      <li>The default build target now follows the open project. A solution with a .lproject builds its own
+      target instead of the engine editor. Setting a target explicitly still overrides it.</li>
+      <li>Picked up the EditCondition and EditConditionHides property specifiers.</li>
+    </ul>
+
+    <h3>1.0.3</h3>
+    <ul>
+      <li>Fixed every build against a game project failing with "Project root '...lproject' does not exist".
+      LuminaBuildTool's -Project takes the directory holding the .lproject file, not the file itself.</li>
+    </ul>
+
+    <h3>1.0.2</h3>
+    <ul>
+      <li>Hover documentation is back on REFLECT, PROPERTY, FUNCTION and SCRIPT_EXPORT. 1.0.1 suppressed it on
+      every macro; it is now suppressed only on GENERATED_BODY and ENTITY_SYSTEM, the two that expand to real
+      code and so get an expansion preview from Rider itself.</li>
+    </ul>
+
     <h3>1.0.1</h3>
     <ul>
       <li>Completion inside REFLECT, PROPERTY, FUNCTION and SCRIPT_EXPORT now offers exactly the specifiers

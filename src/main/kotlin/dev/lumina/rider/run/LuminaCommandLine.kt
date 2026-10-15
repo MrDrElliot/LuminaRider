@@ -55,7 +55,7 @@ object LuminaCommandLine {
             commandLine.addParameter("-Clean")
         }
 
-        LuminaEngine.projectFile(project)?.let { commandLine.addParameter("-Project=$it") }
+        LuminaEngine.projectRoot(project)?.let { commandLine.addParameter("-Project=$it") }
 
         val settings = LuminaSettings.getInstance(project).state
         settings.extraArguments?.let { commandLine.addParameters(ParametersListUtil.parse(it)) }

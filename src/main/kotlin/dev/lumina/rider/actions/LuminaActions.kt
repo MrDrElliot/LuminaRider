@@ -48,7 +48,7 @@ class LuminaBuildTargetAction : LuminaAction() {
     }
 
     private fun chooseTarget(project: Project, onChosen: (String) -> Unit) {
-        val targets = LuminaTargets.discover(LuminaEngine.engineRoot(project), LuminaEngine.projectFile(project)?.parent)
+        val targets = LuminaTargets.discover(LuminaEngine.engineRoot(project), LuminaEngine.projectRoot(project))
         if (targets.isEmpty()) {
             onChosen(LuminaEngine.DEFAULT_TARGET)
             return

@@ -52,9 +52,13 @@ SCRIPT_EXPORT specifier with its form, its consumer and its documentation.
 **Settings | Tools | Lumina Engine** holds the engine root, the `.lproject` file, the default target,
 configuration, target type and platform, extra build tool arguments, and the editor toggles.
 
+The default target follows the open project when left empty: with a `.lproject` present it resolves to the
+target named after it, or to the only target under the project root, and otherwise to the engine editor. Fill
+the field in to pin a target instead.
+
 The engine root is detected automatically: first from the solution directory and its ancestors (looking for
-`Engine/Tools/LuminaBuildTool/LuminaBuildTool.csproj`), then from `LUMINA_DIR`, then from the directory holding
-the `.lproject` file. Set it explicitly when the plugin cannot find it.
+`Engine/Tools/LuminaBuildTool/LuminaBuildTool.csproj`), then from the engine the `.lproject` names, then from the
+directory holding the `.lproject` file, then from any engine LuminaBuildTool has registered on this machine. Set it explicitly when the plugin cannot find it.
 
 ## Building
 
